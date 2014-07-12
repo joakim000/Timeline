@@ -1,0 +1,35 @@
+TODO - Timeline of Composers
+============================
+Prio 1		
+		Detektera komp.box -> kompakta rader (ej en hel rad för varje komp)
+		Hantera overflow i infobox
+
+		DONE: Kontrollera för dublett vid Add composer
+		DONE: Hämta lång komp.lista fr wikipedia
+		DONE: Länk till info/audio-sida för resp komp -> iframe
+
+Prio 2
+		Ta bort komp.
+		Hantera nu levande personer...
+		Detektera för långt namn, använd någon av 2 kortare versioner (rutin för att skapa dessa klar)
+		Utöka slice of history om nytillagd komp ligger utanför
+
+Prio 3
+		Lägg till komp utan att rita om TL
+		Hämta all komp.data för TL i en enda request
+		Flera "listen" på wikisida
+		//Add check here, if pos == -1 then there are no clips found	
+		
+Prio 4
+		Grafisk design
+		?? Lägga till egen era
+		?? Info/audio sida i något slags flytande fönster
+
+
+BUGGAR - Timeline of composers
+==============================
+Snabba omladdningar (tex. genom att dra sliders) ger komp.dubletter
+Kan välja samma år för low & high med high-slidern
+
+FIXAD: TL skiftar upp brevid menyn om för kort tidsperiod vald
+

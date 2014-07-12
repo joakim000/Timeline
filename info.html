@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="xinspect.js"></script>
+<style type='text/css'>
+     body { background-color:lightblue; margin: none; }
+	 div { padding:5px; background-color:#FFF; width:300px; float:left  }
+</style>
+</head>
+<body>
+
+<!--
+<div style='width:930px; height:400px; line-height:130%;' id='infoblock background-image:url(placeholder_staff.png); background-repeat:no-repeat;'>
+-->
+<div style='width:930px; height:400px; line-height:130%;' id='infoblock'> 
+	<div id="infodiv">
+		<span id='infoname'></span>
+		<span id='infowas'></span><br /><br />
+		<span id='infoborn'></span><span id='infobirthplace'></span><br /><br />
+		<span id='infodied'></span><span id='infodeathplace'></span><br /><br />
+		<span id='infowikilink'></span>
+	</div>
+</div>
+
+<!-- <p id = "test1"></p><p id = "test2"></p><p id = "test3"></p><p id = "test4"></p> -->
+
+<script>
+function getQueryVariable(variable) {
+  var query = window.location.search.substring(1);
+  var vars = query.split("&");
+  for (var i=0; i<vars.length; i++) {
+    var pair = vars[i].split("=");
+    try {
+		pair[0] = decodeURIComponent(pair[0]);
+		pair[1] = decodeURIComponent(pair[1]); 
+	}	
+	catch(error) {
+		console.log(error);
+		if (error.message = 'URI malformed') {
+			pair[0] = unescape(pair[0]);
+			pair[1] = unescape(pair[1]);
+		}
+	}
+	if (pair[0] == variable) {
+      return pair[1];
+    }
+  } 
+  return(false);
+}
+
+function fillTable(article){
+	URL = "http://en.wikipedia.org/w/api.php?action=query&format=json&callback=?"
+
+	function getExtract() {
+		return $.getJSON(URL, {
+			prop:"extracts",
+			exintro:"",
+			titles:article,
+		})
+	}
+	function getPage() {
+		return $.getJSON(URL, {
+			prop:"revisions",
+			rvprop:"content",
+			titles:article,
+		})
+	}
+	function getFileURL(file) {
+		return $.getJSON(URL, {
+			prop:"imageinfo",
+			iiprop:"url",
+			titles:file,
+		})
+	}
+	
+	getExtract().done(function(data) {
+		pages = data.query.pages;
+		pageid = Object.getOwnPropertyNames(pages);
+		extract = pages[pageid].extract;
+		fullName = extract.substring(0,extract.indexOf("("));
+		wasIndex = extract.indexOf("was a");
+		was = extract.substring(wasIndex + 5);
+		was = was.substring(0,was.indexOf("."));
+		
+		var yearPattern = /\d\d\d\d/;
+		var pos = extract.search(yearPattern);
+		var born = extract.substring(pos, pos+4);
+		var stringTemp = extract.substring(pos+4);
+		pos = stringTemp.search(yearPattern);
+		var died = stringTemp.substring(pos, pos+4); 
+		var wikilink = '<a href="https://en.wikipedia.org/wiki/' + article + '" target="_blank">Wikipedia</a>'
+	
+		document.getElementById('infoname').innerHTML = fullName;		
+		document.getElementById('infowas').innerHTML = was;		
+		document.getElementById('infoborn').innerHTML = '* ' + born;		
+		document.getElementById('infodied').innerHTML = '+ ' + died;		
+		document.getElementById('infowikilink').innerHTML = wikilink;				
+    });
+	getPage().done(function(data) {
+		pages = data.query.pages;
+		pageid = Object.getOwnPropertyNames(pages);
+    	rv = pages[pageid].revisions[0];
+		content = rv["*"];
+	
+		function getInfo(searchString){	
+			var pos = content.search(searchString);
+			if (pos != -1) {
+				r = content.substring(pos);
+				r = r.substring(r.search('=')+1);
+				pos = r.search('\n');
+				posPipe = r.search(/\|/);
+				if (posPipe != -1) { pos = Math.min(pos, posPipe); }
+				r = r.substring(0,pos);
+				r = r.replace(/\[/g, '');
+				r = r.replace(/\]/g, '');
+				return r;
+			}
+			else { return false; }
+		}
+		
+		var dob = getInfo('DATE OF BIRTH');
+		if (dob != false){ document.getElementById('infoborn').innerHTML = '* ' + dob; }
+		
+		var pob = getInfo('PLACE OF BIRTH');
+		if (pob != false){ document.getElementById('infobirthplace').innerHTML = ' <em>in</em> ' + pob; }
+		
+		var dod = getInfo('DATE OF DEATH');
+		if (dod != false){ document.getElementById('infodied').innerHTML = '+ ' + dod; }
+		
+		var pod = getInfo('PLACE OF DEATH');
+		if (pod != false){ document.getElementById('infodeathplace').innerHTML = ' <em>in</em> ' + pod; }
+		
+		var pos = content.search(/\{\{listen/i); //Add check here, if pos == -1 then there are no clips found		
+		var stringTemp = content.substring(pos+8);
+		pos = stringTemp.search("}}");
+		var listen = stringTemp.substring(0,pos);
+		
+		listen = listen.replace(/\[[\w\séÉ]*\|/g, '');
+		//listen = listen.replace(/\[.*\|/g, '');
+		listen = listen.replace(/\[/g, '');
+		listen = listen.replace(/\]/g, '');
+		var L = listen.split("|");
+		
+		var clipFile = []
+		var clipDesc = []
+		var clipTitle = []
+		for (s in L) {
+			if (/filename/i.test(L[s])) {
+				pos = L[s].search("=");
+				L[s] = L[s].substring(pos+1).trim();
+				clipFile.push(L[s]);
+			}
+			if (/description/i.test(L[s])) {
+				pos = L[s].search("=");
+				L[s] = L[s].substring(pos+1).trim();
+				clipDesc.push(L[s]);
+			}
+			if (/title/i.test(L[s])) {
+				pos = L[s].search("=");
+				L[s] = L[s].substring(pos+1).trim();
+				clipTitle.push(L[s]);
+			}	
+		}
+		// Build list of files to get URLs for
+		var fileList = ""
+		for (f in clipFile) {
+			fileList = fileList + "File:" + clipFile[f] + "|"
+		}
+		fileList = fileList.slice(0,-1);
+		
+		clipFileURL = []
+		getFileURL(fileList).done(function(uData) {
+			x = -1
+			for (i in clipFile) {
+				clipFileURL.push(uData.query.pages[x].imageinfo[0].url);
+				x--;
+			}		
+			for (i in clipFile) {
+				var clip = document.createElement('div');
+				clip.id = 'clip' + i;
+				clip.class = 'clip';
+				//clip.appendChild(document.createElement('hr'));
+					
+					var player = document.createElement('div');
+					player.id = 'player' + i;
+					//player.style = "width:100%";	
+						var audio = document.createElement('audio')
+						audio.id = 'audio' + i;
+						audio.controls = "true";
+						audio.preload = "none";
+						//audio.style = "width:200px";		
+							var source = document.createElement('source');
+							source.type = 'audio/ogg';
+							source.src = clipFileURL[i];
+						audio.appendChild(source);
+					player.appendChild(audio);	
+				clip.appendChild(player);
+					
+					var title = document.createElement('div');
+					title.id = 'title' + i;
+					title.innerHTML = clipTitle[i];
+					//title.style = 'width:100%';
+				clip.appendChild(title);
+					
+					var desc = document.createElement('div');
+					desc.id = 'desc' + i;
+					desc.innerHTML = '<em>'+clipDesc[i]+'</em>';
+				clip.appendChild(desc);
+
+				document.getElementById('infoblock').appendChild(clip);
+			}
+		});
+	});
+}			
+
+
+/*
+*/
+var composer = getQueryVariable("composer");
+
+if (composer == false) {
+	maindiv = document.getElementById('infoblock');
+	//maindiv.innerHTML = "No composer found.";
+	//maindiv.innerHTML = '<img src="placeholder_book.jpg" height="380" width="520" style="position:relative; left:200px; top:10px;" />';
+	maindiv.innerHTML = '<img src="placeholder_staff.png" height="380" width="820" style="position:relative; left:50px; top:10px;" />';
+}
+else {
+	fillTable(composer);
+}	
+
+//fillTable("Frédéric_Chopin");
+//fillTable("Edvard_Grieg");
+//fillTable("Johann_Sebastian_Bach");
+//fillTable("Pyotr_Ilyich_Tchaikovsky");
+//fillTable("Joseph_Haydn");
+//fillTable("Wolfgang_Amadeus_Mozart");
+//fillTable("Ludwig_van_Beethoven");
+
+// Ingen musik:
+//fillTable("Franz_Liszt");
+//fillTable("Felix_Mendelssohn");
+//fillTable("Alexander_Borodin");
+
+// Funkar inte alls:
+//fillTable("Antonín_Dvorák"); //flera listen på sidan
+ 
+
+</script>
+</body>
+</html>
+
