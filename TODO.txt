@@ -1,35 +1,70 @@
 TODO - Timeline of Composers
 ============================
 Prio 1		
-		Detektera komp.box -> kompakta rader (ej en hel rad för varje komp)
-		Hantera overflow i infobox
-
-		DONE: Kontrollera för dublett vid Add composer
-		DONE: Hämta lång komp.lista fr wikipedia
-		DONE: Länk till info/audio-sida för resp komp -> iframe
+	Detektera komp.box -> kompakta rader (ej en hel rad för varje komp) -> "Bubbla upp"?
+	Lägg alla komp.box i ett stort SVG-element.
 
 Prio 2
-		Ta bort komp.
-		Hantera nu levande personer...
-		Detektera för långt namn, använd någon av 2 kortare versioner (rutin för att skapa dessa klar)
-		Utöka slice of history om nytillagd komp ligger utanför
+	
+	Ta bort komp.
+	Hantera nu levande personer...
+	Detektera för långt namn, använd någon av 2 kortare versioner (rutin för att skapa dessa klar)
 
 Prio 3
-		Lägg till komp utan att rita om TL
-		Hämta all komp.data för TL i en enda request
-		Flera "listen" på wikisida
-		//Add check here, if pos == -1 then there are no clips found	
+	skalbart canvas
+	...med scrollbar viewport
+	Lägg till komp utan att rita om TL
+	Flera "listen" på wikisida
 		
 Prio 4
-		Grafisk design
-		?? Lägga till egen era
-		?? Info/audio sida i något slags flytande fönster
+	light / dark background
+	choose main color (default lightblue)
+	scrollbar-tema
+		
+	Hämta all komp.data för TL i en enda request
+	Grafisk design
+	?? Lägga till egen era
+	?? Info/audio sida i något slags flytande fönster
+	?? Utöka slice of history om nytillagd komp ligger utanför
 
+DONE
+	Hantera overflow i infobox
+	Kontrollera för dublett vid Add composer
+	Hämta lång komp.lista fr wikipedia
+	Länk till info/audio-sida för resp komp -> iframe
+	//Add check here, if pos == -1 then there are no clips found
+	Ta in bilder.
+		
 
+		
 BUGGAR - Timeline of composers
 ==============================
+Born & died-text hamnar under resp ikon om texten är för lång.
 Snabba omladdningar (tex. genom att dra sliders) ger komp.dubletter
 Kan välja samma år för low & high med high-slidern
 
+
 FIXAD: TL skiftar upp brevid menyn om för kort tidsperiod vald
+
+
+
+Female composers
+================
+Clara Schumann
+Amy Beach
+Fanny Mendelssohn
+Hildegard of Bingen
+Lili Boulanger
+Cécile Chaminade
+Nadia Boulanger
+Franscesca Caccini
+Ethel Smyth
+Élisabeth Jacquet de La Guerre
+Louise Farrenc
+Isabella Leonarda
+Ruth Crawford Seeger
+Barbara Strozzi
+Elfrida Andrée
+Agathe Backer-Grøndahl
+Germaine Tailleferre
 

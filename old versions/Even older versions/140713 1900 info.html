@@ -251,17 +251,7 @@ function fillTable(article){
 			getFileURL(fileList).done(function(uData) {
 				x = -1
 				for (i in clipFile) {
-					console.log(uData);
-					if (uData.query.pages[x] == undefined) {
-						console.log(Object.getOwnPropertyNames(pages));
-						console.log(Object.keys(pages));
-						var testid= Object.getOwnPropertyNames(pages);
-						clipFileURL.push(uData.query.pages[19547758].imageinfo[0].url); //Special för Hildegard av Bingen
-						//clipFileURL.push(uData.query.pages[testid].imageinfo[0].url); //Special för Hildegard av Bingen
-					}
-					else {
-						clipFileURL.push(uData.query.pages[x].imageinfo[0].url);
-					}
+					clipFileURL.push(uData.query.pages[x].imageinfo[0].url);
 					x--;
 				}		
 				for (i in clipFile) {

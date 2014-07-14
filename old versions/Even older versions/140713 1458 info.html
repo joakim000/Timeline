@@ -74,7 +74,7 @@ function getQueryVariable(variable) {
 function fillTable(article){
 	URL = "http://en.wikipedia.org/w/api.php?format=json&callback=?"
 
-	function getExtract() {  //Get basic information
+	function getExtract() {
 		return $.getJSON(URL, {
 			action:"query",
 			prop:"extracts",
@@ -82,7 +82,7 @@ function fillTable(article){
 			titles:article,
 		})
 	}
-	function getPage() {  //Get details on born & died, get audiofiles
+	function getPage() {
 		return $.getJSON(URL, {
 			action:"query",
 			prop:"revisions",
@@ -90,7 +90,7 @@ function fillTable(article){
 			titles:article,
 		})
 	}
-	function getFileURL(file) { //Get real URLs for audiofiles
+	function getFileURL(file) {
 		return $.getJSON(URL, {
 			action:"query",
 			prop:"imageinfo",
@@ -98,29 +98,8 @@ function fillTable(article){
 			titles:file,
 		})
 	}
-	/* Get images on page, then URL and imagedesc
-	http://en.wikipedia.org/w/api.php?format=jsonfm&action=parse&prop=images&page=PAGETITLE
-	http://en.wikipedia.org/w/api.php?action=query&format=jsonfm&titles=File:FILENAME&prop=imageinfo&iiprop=url|extmetadata
-	*/
-	function getImages() { // Get images on article-page
-		return $.getJSON(URL, {
-			action:"parse",
-			prop:"images",
-			iiprop:"url",
-			page:article,
-		})
-	}
-	function getFileMetaAndURL(file) { //Get real URLs and descriptions for images
-		return $.getJSON(URL, {
-			action:"query",
-			prop:"imageinfo",
-			iiprop:"url\|extmetadata",
-			titles:file,
-		})
-	}
 	
-	
-	getExtract().done(function(data) { //Get basic information ASYNC
+	getExtract().done(function(data) {
 		pages = data.query.pages;
 		pageid = Object.getOwnPropertyNames(pages);
 		extract = pages[pageid].extract;
@@ -143,14 +122,14 @@ function fillTable(article){
 		
 		document.getElementById('infoname').innerHTML = namelink;			
 		document.getElementById('infowas').innerHTML = was;		
-		//document.getElementById('borntext').innerHTML = '&nbsp;' + born;
+		document.getElementById('borntext').innerHTML = '&nbsp;' + born;
 		//document.getElementById('bornimg').innerHTML = '<img src="birth-symbol.png" width="20" height="20" />'		
-		//document.getElementById('diedtext').innerHTML = '&nbsp;' + died;		
+		document.getElementById('diedtext').innerHTML = '&nbsp;' + died;		
 		document.getElementById('summary').innerHTML = summaryText;				
 
 		
     });
-	getPage().done(function(data) { //Get details on born & died, get audiofiles ASYNC
+	getPage().done(function(data) {
 		pages = data.query.pages;
 		pageid = Object.getOwnPropertyNames(pages);
     	rv = pages[pageid].revisions[0];
@@ -188,194 +167,105 @@ function fillTable(article){
 		else if (dod != false) { 
 			document.getElementById('diedtext').innerHTML = '&nbsp;' + dod; 
 		}
-		else { //Falltrough, there is no information on death, remove infodied-div
-			$('#infodied').empty();
-		}
 		//bornImage = document.createElement('img');
 		//bornImage.src('birth-symbol.png');
 		//bornImage.width('20'); bornImage.height('20');
 		//document.getElementById('bornimg').appendChild(bornImage);
 		
-		var pos = content.search(/\{\{listen/i); //Add check here, if pos == -1 then there are no clips found
-
-		if (pos == -1) {
-			// load no music-image
-			var img = document.createElement('img');
-			img.id = 'img' + i;
-			img.src = 'nomusic.png';
-			img.width = '320';
-			document.getElementById('musicdiv').appendChild(document.createElement('br'));
-			document.getElementById('musicdiv').appendChild(document.createElement('br'));
-			document.getElementById('musicdiv').appendChild(img);
-			
-		}
-		else {
-			var stringTemp = content.substring(pos+8);
-			pos = stringTemp.search("}}");
-			var listen = stringTemp.substring(0,pos);
-			
-			listen = listen.replace(/\[[\w\séÉ]*\|/g, '');
-			//listen = listen.replace(/\[.*\|/g, '');
-			listen = listen.replace(/\[/g, '');
-			listen = listen.replace(/\]/g, '');
-			var L = listen.split("|");
-			
-			var clipFile = []
-			var clipDesc = []
-			var clipTitle = []
-			for (s in L) {
-				if (/filename/i.test(L[s])) {
-					pos = L[s].search("=");
-					L[s] = L[s].substring(pos+1).trim();
-					clipFile.push(L[s]);
-				}
-				if (/description/i.test(L[s])) {
-					pos = L[s].search("=");
-					L[s] = L[s].substring(pos+1).trim();
-					clipDesc.push(L[s]);
-				}
-				if (/title/i.test(L[s])) {
-					pos = L[s].search("=");
-					L[s] = L[s].substring(pos+1).trim();
-					clipTitle.push(L[s]);
-				}	
-			}
-			// Build list of files to get URLs for
-			var fileList = ""
-			for (f in clipFile) {
-				fileList = fileList + "File:" + clipFile[f] + "|"
-			}
-			fileList = fileList.slice(0,-1);
-			
-			clipFileURL = []
-			getFileURL(fileList).done(function(uData) {
-				x = -1
-				for (i in clipFile) {
-					console.log(uData);
-					if (uData.query.pages[x] == undefined) {
-						console.log(Object.getOwnPropertyNames(pages));
-						console.log(Object.keys(pages));
-						var testid= Object.getOwnPropertyNames(pages);
-						clipFileURL.push(uData.query.pages[19547758].imageinfo[0].url); //Special för Hildegard av Bingen
-						//clipFileURL.push(uData.query.pages[testid].imageinfo[0].url); //Special för Hildegard av Bingen
-					}
-					else {
-						clipFileURL.push(uData.query.pages[x].imageinfo[0].url);
-					}
-					x--;
-				}		
-				for (i in clipFile) {
-					var clip = document.createElement('div');
-					clip.id = 'clip' + i;
-					clip.class = 'clip';
-					clip.style = 'width:290px; padding:5px; margin-top:5px; margin-bottom:5px; border:3px outset lightblue; border-radius:15px;'
-					//clip.appendChild(document.createElement('hr'));
-						
-						var player = document.createElement('div');
-						player.id = 'player' + i;
-						//player.style = "width:100%; height:100%";	
-							var audio = document.createElement('audio')
-							audio.id = 'audio' + i;
-							audio.controls = "true";
-							audio.preload = "none";
-							audio.style = "width:289px";		
-								var source = document.createElement('source');
-								source.type = 'audio/ogg';
-								source.src = clipFileURL[i];
-							audio.appendChild(source);
-						player.appendChild(audio);	
-					clip.appendChild(player);
-						
-						var title = document.createElement('div');
-						title.id = 'title' + i;
-						//title.style = "width:100%; height:100%";
-						title.innerHTML = clipTitle[i];
-					clip.appendChild(title);
-						
-						var desc = document.createElement('div');
-						desc.id = 'desc' + i;
-						//desc.style = 'width:100%; height:100%; ';
-						desc.innerHTML = '&nbsp;<em>'+clipDesc[i]+'</em>';
-					clip.appendChild(desc);
-
-					document.getElementById('musicdiv').appendChild(clip);
-				}
-			});
-		}
-	});
-	
-	getImages().done(function(data) { //Get details on born & died, get audiofiles ASYNC
-		images = data.parse.images;
-		//var imgFile = []
-		//console.log(images);
 		
+		var pos = content.search(/\{\{listen/i); //Add check here, if pos == -1 then there are no clips found		
+		var stringTemp = content.substring(pos+8);
+		pos = stringTemp.search("}}");
+		var listen = stringTemp.substring(0,pos);
+		
+		listen = listen.replace(/\[[\w\séÉ]*\|/g, '');
+		//listen = listen.replace(/\[.*\|/g, '');
+		listen = listen.replace(/\[/g, '');
+		listen = listen.replace(/\]/g, '');
+		var L = listen.split("|");
+		
+		var clipFile = []
+		var clipDesc = []
+		var clipTitle = []
+		for (s in L) {
+			if (/filename/i.test(L[s])) {
+				pos = L[s].search("=");
+				L[s] = L[s].substring(pos+1).trim();
+				clipFile.push(L[s]);
+			}
+			if (/description/i.test(L[s])) {
+				pos = L[s].search("=");
+				L[s] = L[s].substring(pos+1).trim();
+				clipDesc.push(L[s]);
+			}
+			if (/title/i.test(L[s])) {
+				pos = L[s].search("=");
+				L[s] = L[s].substring(pos+1).trim();
+				clipTitle.push(L[s]);
+			}	
+		}
 		// Build list of files to get URLs for
-		var imgCount = 0;
-		var imgList = ""
-		for (i in images) {
-			var ext = images[i].substr(images[i].search(/\.(?!.*\.)/g)+1).toLocaleLowerCase(); //RE finds final . in string
-			//console.log(ext);
-			if (ext == 'jpg' || ext == 'jpeg' || ext == 'png') {
-				imgList = imgList + "File:" + images[i] + "|"
-				imgCount++;
-			}
+		var fileList = ""
+		for (f in clipFile) {
+			fileList = fileList + "File:" + clipFile[f] + "|"
 		}
-		imgList = imgList.slice(0,-1);
-		//console.log(imgList);
-		//console.log(imgCount);
+		fileList = fileList.slice(0,-1);
 		
-		var imgURL = []
-		var imgDesc = []
-		getFileMetaAndURL(imgList).done(function(data) {
-			for (i = 1; i <= imgCount; i++) {
-				if (data.query.pages[-i] == undefined) { break; }
-				imgURL.push(data.query.pages[-i].imageinfo[0].url);
-				if (data.query.pages[-i].imageinfo[0].extmetadata.ImageDescription == undefined) {
-					imgDesc.push('No description.');
-				}
-				else {
-					imgDesc.push(jQuery('<p>' + data.query.pages[-i].imageinfo[0].extmetadata.ImageDescription.value + '</p>').text());
-				}
-			}
-			//console.log(imgURL);
-			//console.log(imgDesc);
-			for (i in imgURL) {
-				var imgContainer = document.createElement('div');
-				imgContainer.id = 'imgContainer' + i;
-				imgContainer.class = 'imgContainer';
-				imgContainer.style = 'width:305px; padding:5px; margin-top:5px; margin-bottom:5px; '
-				//imgContainer.appendChild(document.createElement('hr'));
+		clipFileURL = []
+		getFileURL(fileList).done(function(uData) {
+			x = -1
+			for (i in clipFile) {
+				clipFileURL.push(uData.query.pages[x].imageinfo[0].url);
+				x--;
+			}		
+			for (i in clipFile) {
+				var clip = document.createElement('div');
+				clip.id = 'clip' + i;
+				clip.class = 'clip';
+				clip.style = 'width:290px; padding:5px; margin-top:5px; margin-bottom:5px; border:3px outset lightblue; border-radius:15px;'
+				//clip.appendChild(document.createElement('hr'));
 					
-					var img = document.createElement('img');
-					img.id = 'img' + i;
-					img.src = imgURL[i];
-					img.width = '305';
-				imgContainer.appendChild(img);	
-										
+					var player = document.createElement('div');
+					player.id = 'player' + i;
+					//player.style = "width:100%; height:100%";	
+						var audio = document.createElement('audio')
+						audio.id = 'audio' + i;
+						audio.controls = "true";
+						audio.preload = "none";
+						audio.style = "width:289px";		
+							var source = document.createElement('source');
+							source.type = 'audio/ogg';
+							source.src = clipFileURL[i];
+						audio.appendChild(source);
+					player.appendChild(audio);	
+				clip.appendChild(player);
+					
+					var title = document.createElement('div');
+					title.id = 'title' + i;
+					//title.style = "width:100%; height:100%";
+					title.innerHTML = clipTitle[i];
+				clip.appendChild(title);
+					
 					var desc = document.createElement('div');
-					desc.id = 'imgDesc' + i;
+					desc.id = 'desc' + i;
 					//desc.style = 'width:100%; height:100%; ';
-					desc.innerHTML = '<em>'+imgDesc[i]+'</em><br /><br />';
-				imgContainer.appendChild(desc);
+					desc.innerHTML = '&nbsp;<em>'+clipDesc[i]+'</em>';
+				clip.appendChild(desc);
 
-				document.getElementById('imgdiv').appendChild(imgContainer);
-				
-			} 
-			
+				document.getElementById('musicdiv').appendChild(clip);
+			}
 		});
-			
-	}); // End of getImages
-	
+	});
 }			
 
-
-// Main
 var composer = getQueryVariable("composer");
-if (composer == false) { // If no composer set up placeholder
+
+if (composer == false) {
 	maindiv = document.getElementById('infoblock');
 	//maindiv.innerHTML = '<img src="placeholder_book.jpg" height="380" width="520" style="position:relative; left:200px; top:10px;" />';
 	maindiv.style = "padding:5px; width:990px; height:400px"
 	maindiv.innerHTML = '<img src="placeholder_title.png" height="380" width="800" style="position:relative; left:95px; top:10px;" />';
+	
 }
 else {
 	fillTable(composer);
