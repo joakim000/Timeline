@@ -14,13 +14,15 @@ Prio 3
 	skalbart canvas
 	...med scrollbar viewport
 	Lägg till komp utan att rita om TL
-	Flera "listen" på wikisida
+	Flera "listen" på wikisida -> Dvorâk
 		
 Prio 4
 	light / dark background
 	choose main color (default lightblue)
 	scrollbar-tema
-		
+	
+	Hämnta bild-desc från artikeln istället för filbeskrivning
+	
 	Hämta all komp.data för TL i en enda request
 	Grafisk design
 	?? Lägga till egen era
@@ -40,12 +42,11 @@ DONE
 BUGGAR - Timeline of composers
 ==============================
 Born & died-text hamnar under resp ikon om texten är för lång.
-Snabba omladdningar (tex. genom att dra sliders) ger komp.dubletter
 Kan välja samma år för low & high med high-slidern
 
 
 FIXAD: TL skiftar upp brevid menyn om för kort tidsperiod vald
-
+FIXAD: Snabba omladdningar (tex. genom att dra sliders) ger komp.dubletter
 
 
 Female composers
