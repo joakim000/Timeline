@@ -6,13 +6,12 @@ Prio 1
 
 Prio 2
 	
-	Ta bort komp.
-	Hantera nu levande personer...
+	Ta bort komp. (har lagt till reset...)
 	Detektera för långt namn, använd någon av 2 kortare versioner (rutin för att skapa dessa klar)
 
 Prio 3
-	skalbart canvas
-	...med scrollbar viewport
+	?? skalbart canvas
+	?? med scrollbar viewport
 	Lägg till komp utan att rita om TL
 	Flera "listen" på wikisida -> Dvorâk
 		
@@ -36,11 +35,12 @@ DONE
 	Länk till info/audio-sida för resp komp -> iframe
 	//Add check here, if pos == -1 then there are no clips found
 	Ta in bilder.
-		
+	Hantera nu levande personer...
 
 		
 BUGGAR - Timeline of composers
 ==============================
+LISTEN-boxar hittas inte alltid!!! Se Aphex Twin
 Born & died-text hamnar under resp ikon om texten är för lång.
 Kan välja samma år för low & high med high-slidern
 

@@ -1,0 +1,42 @@
+Displayyear-kontroll-varianter
+==============================
+
+	if (label.id == 'labellow'){
+		if (con.value >= (otherCon.value)) { con.value = otherCon.value - 120;}
+	}
+	if (label.id == 'labelhigh'){
+		if (con.value <= (otherCon.value)) { con.value = otherCon.value;} // +20 leads to bug where con.value gets set to max
+	}
+
+	
+
+	
+
+	if (label.id == 'labellow'){
+		otherCon.min = con.value - 100;
+	}
+	if (label.id == 'labelhigh'){
+		otherCon.max = con.value - 100;
+	}
+
+	
+	
+	console.log(Math.abs(con.value-otherCon.value));
+	if (Math.abs(con.value-otherCon.value) > 100) {
+		label.innerHTML=con.value;
+		doOver(controllow.value, controlhigh.value, composers, zoom.options[zoom.selectedIndex].value)
+	}
+
+	
+	
+		if ( (label.id=='labellow' && otherCon.value-con.value > 100) || (label.id=='labelhigh' &&  con.value-otherCon.value > 100) ) {		
+		//label.innerHTML=con.value;
+		doOver(controllow.value, controlhigh.value, composers, zoom.options[zoom.selectedIndex].value)
+	}
+	else {
+		if (label.id='labellow') {con.value = otherCon.value - 100; }
+		if (label.id='labelhigh') {con.value = otherCon.value + 100; }
+		//label.innerHTML=con.value;
+		
+		
+		

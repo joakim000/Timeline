@@ -7,7 +7,6 @@ var xlinkNS = "http://www.w3.org/1999/xlink";
 
 //Global variables
 var cc = {};	//composer cache
-var scale = 1;
 
 //Objects for storing data
 function composer(link, title, dob, dod, name, dobL, dodL, pob, pod, was, extract, wikitext, clips, images){
@@ -154,11 +153,8 @@ function infoCol(link){
 		pageid = Object.getOwnPropertyNames(pages);
 		extract = pages[pageid].extract;
 		fullName = extract.substring(3,extract.indexOf("("));
-		
-		wasIndex = extract.indexOf("was a ");
-		if (wasIndex == -1) { wasIndex = extract.indexOf("was an "); }
-		if (wasIndex == -1) { wasIndex = extract.indexOf("is a "); }
-		if (wasIndex == -1) { wasIndex = extract.indexOf("is an "); }
+		wasIndex = extract.indexOf("was a");
+		if (extract.charAt(wasIndex+5) == 'n') { wasIndex++; };
 		was = extract.substring(wasIndex + 5);
 		firstSentenceEnd = was.indexOf('.')+1;
 		var summaryText = was.substring(firstSentenceEnd);
@@ -190,7 +186,6 @@ function infoCol(link){
 		var pob = bornAndDied.pob;
 		var dod = bornAndDied.dod;
 		var pod = bornAndDied.pod;
-		if (dod == -1) { dod = false; }
 		if (dob != false && pob != false) {
 			document.getElementById('borntext').innerHTML = '&nbsp;' + dob + ' <em>in</em> ' + pob; 
 		}
@@ -279,20 +274,17 @@ function audioCol(link){
 					if (data.query.pages[x] == undefined) {
 						//console.log(Object.getOwnPropertyNames(pages));
 						//console.log(Object.keys(pages));
-						//var testid= Object.getOwnPropertyNames(pages);
-						//clipFileURL.push(uData.query.pages[testid].imageinfo[0].url); 
+						var testid= Object.getOwnPropertyNames(pages);
 						clipFileURL.push(data.query.pages[19547758].imageinfo[0].url); //Special för Hildegard av Bingen
-						clipFileURL.push(data.query.pages[9263525].imageinfo[0].url); //Special för Aphex Twin
-						
+						//clipFileURL.push(uData.query.pages[testid].imageinfo[0].url); //Special för Hildegard av Bingen
 					}
 					else {
 						clipFileURL.push(data.query.pages[x].imageinfo[0].url);
 					}
 					x--;
 				}		
-				for (i in clipFileURL) {
+				for (i in clipFile) {
 					var clip = document.createElement('div');
-					document.getElementById('musicdiv').appendChild(clip);
 					clip.id = 'clip' + i;
 					clip.class = 'clip';
 					clip.style = 'width:290px; padding:5px; margin-top:5px; margin-bottom:5px; border:3px outset lightblue; border-radius:15px;'
@@ -325,7 +317,7 @@ function audioCol(link){
 						desc.innerHTML = '&nbsp;<em>'+clipDesc[i]+'</em>';
 					clip.appendChild(desc);
 
-					
+					document.getElementById('musicdiv').appendChild(clip);
 				}
 			});
 		}
@@ -389,6 +381,7 @@ function imageCol(link){
 
 // Paint composerbox on timeline
 function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
+	expandFactor = (expandFactor/2)+1;
 	var living = false;
 	if (dod == -1) {
 		dod = CURRENTYEAR;
@@ -413,7 +406,7 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 		
 		var bornI = parseInt(dob); var diedI = parseInt(dod); 				
 		var translatePx = ((bornI - low)*expandFactor + MARGIN);
-		var tlWidth = (high-low)*expandFactor -25;
+		var tlWidth = (high-low)*expandFactor;
 		
 		var box = document.createElementNS(svgNS, 'svg');
 		box.setAttributeNS(null, 'id', link);
@@ -460,8 +453,6 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 				name.setAttributeNS(null, 'id', link);
 				name.setAttributeNS(null, 'class', 'name');
 				name.setAttributeNS(null, 'font-size','17');
-				name.setAttributeNS(null, 'font-weight','bold');
-				name.setAttributeNS(null, 'font-family','Segoe UI');
 				name.setAttributeNS(null, 'fill', 'black');
 				name.setAttributeNS(null, 'x', translatePx+13);
 				name.setAttributeNS(null, 'y', '23');
@@ -490,9 +481,8 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 				years.setAttributeNS(null, 'class', 'years');
 				years.setAttributeNS(null, 'font-size', '13');
 				years.setAttributeNS(null, 'fill', 'black');
-				name.setAttributeNS(null, 'font-family','Segoe UI Light');
-				years.setAttributeNS(null, 'x', translatePx+20);
-				years.setAttributeNS(null, 'y', '41');
+				years.setAttributeNS(null, 'x', translatePx+15);
+				years.setAttributeNS(null, 'y', '42');
 				if (living) {
 					years.innerHTML = 'Born ' + dob;
 				}
@@ -515,16 +505,17 @@ function timeAxis(low, high, expandFactor){
 		this.color = color;
 	}
 	
-	var periods =  [new period('Medieval', 1000, 1400, 'orange'), new period('Renaissance', 1400, 1600, 'yellow'),
+	var periods =  [new period('Medieval', 1200, 1400, 'orange'), new period('Renaissance', 1400, 1600, 'yellow'),
 					new period('Baroque', 1600, 1745,'brown'), new period('Classical', 1745, 1820, 'gray'),
 					new period('Romantic', 1820, 1900, 'red'),	new period('Modern', 1900, 1930, 'pink'),
 					new period('Contemporary', 1975, CURRENTYEAR, 'khaki')];
 	
-	tlWidth = (high-low)*expandFactor -25;
+	expandFactor = (expandFactor/2)+1;	
+	tlWidth = (high-low)*expandFactor;
 	var tl = document.createElementNS(svgNS, 'svg');
 	tl.setAttributeNS(null, 'height', '72');
 	tl.setAttributeNS(null, 'width', (tlWidth+MARGIN*2).toString());
-	document.getElementById('container').style = 'width:' + (tlWidth+0) + 'px;';
+	document.getElementById('container').style = 'width:' + (tlWidth+30) + 'px;';
 	
 	for (i in periods){
 			var pp = document.createElementNS(svgNS, 'rect');// pp: Paint Period
@@ -539,7 +530,7 @@ function timeAxis(low, high, expandFactor){
 		tl.appendChild(pp);
 			var ppT = document.createElementNS(svgNS, 'text');
 			ppT.setAttributeNS(null, 'class', 'legend');
-			ppT.setAttributeNS(null, 'font-size', '14'); 
+			ppT.setAttributeNS(null, 'font-size', '16'); 
 			ppT.setAttributeNS(null, 'fill', 'black');
 			ppT.setAttributeNS(null, 'y', '42');
 			if (periods[i].start < low){
@@ -554,43 +545,41 @@ function timeAxis(low, high, expandFactor){
 	}
 		var line = document.createElementNS(svgNS, 'line');
 		line.setAttributeNS(null, 'id', 'line');
-		line.setAttributeNS(null, 'x1', 0);
+		line.setAttributeNS(null, 'x1', MARGIN);
 		line.setAttributeNS(null, 'y1', '25');
-		line.setAttributeNS(null, 'x2', tlWidth + MARGIN*2);
+		line.setAttributeNS(null, 'x2', tlWidth + MARGIN);
 		line.setAttributeNS(null, 'y2', '25');
-		line.setAttributeNS(null, 'style', 'stroke:white;stroke-width:5');
+		line.setAttributeNS(null, 'style', 'stroke:black;stroke-width:5');
 	tl.appendChild(line);
-	/*
 		var beL = document.createElementNS(svgNS, 'line');
 		beL.setAttributeNS(null, 'id', 'bookendL');
-		beL.setAttributeNS(null, 'x1', MARGIN -1);
+		beL.setAttributeNS(null, 'x1', MARGIN);
 		beL.setAttributeNS(null, 'y1', '5');
-		beL.setAttributeNS(null, 'x2', MARGIN -1);
+		beL.setAttributeNS(null, 'x2', MARGIN);
 		beL.setAttributeNS(null, 'y2', '45');
 		beL.setAttributeNS(null, 'style', 'stroke:black;stroke-width:5');
 	tl.appendChild(beL);
 		var beR = document.createElementNS(svgNS, 'line');
 		beR.setAttributeNS(null, 'id', 'bookendR');
-		beR.setAttributeNS(null, 'x1', tlWidth + MARGIN +1);
+		beR.setAttributeNS(null, 'x1', tlWidth + MARGIN);
 		beR.setAttributeNS(null, 'y1', '5');
-		beR.setAttributeNS(null, 'x2', tlWidth + MARGIN +1);
+		beR.setAttributeNS(null, 'x2', tlWidth + MARGIN);
 		beR.setAttributeNS(null, 'y2', '45');
 		beR.setAttributeNS(null, 'style', 'stroke:black;stroke-width:5');
 	tl.appendChild(beR);
-	*/
 		var yearL = document.createElementNS(svgNS, 'text');
 		yearL.setAttributeNS(null, 'class', 'legend');
-		yearL.setAttributeNS(null, 'font-size', '20'); 
+		yearL.setAttributeNS(null, 'font-size', '16'); 
 		yearL.setAttributeNS(null, 'fill', 'black');
-		yearL.setAttributeNS(null, 'x', MARGIN + 3);
+		yearL.setAttributeNS(null, 'x', MARGIN + 4);
 		yearL.setAttributeNS(null, 'y', '20');
 		yearL.innerHTML = low.toString();
 	tl.appendChild(yearL);
 		var yearR = document.createElementNS(svgNS, 'text');
 		yearR.setAttributeNS(null, 'class', 'legend');
-		yearR.setAttributeNS(null, 'font-size', '20');
+		yearR.setAttributeNS(null, 'font-size', '16');
 		yearR.setAttributeNS(null, 'fill', 'black');
-		yearR.setAttributeNS(null, 'x', tlWidth + MARGIN - 60);
+		yearR.setAttributeNS(null, 'x', tlWidth + MARGIN - 45);
 		yearR.setAttributeNS(null, 'y', '20');
 		yearR.innerHTML = high.toString();
 	tl.appendChild(yearR);
