@@ -1,11 +1,14 @@
 TODO - Timeline of Composers
 ============================
 Prio 1		
+
 	Detektera komp.box -> kompakta rader (ej en hel rad för varje komp) -> "Bubbla upp"?
 	Lägg alla komp.box i ett stort SVG-element.
 
 Prio 2
+	Flytta info.html in i index.html, ta bort iframe
 	
+	Mer text utöver summary, speciellt när summary är kort (brukar då finnas en "Biography" el "Life") ex. Maryanne_Amacher, Germaine_Tailleferre
 	Ta bort komp. (har lagt till reset...)
 	Detektera för långt namn, använd någon av 2 kortare versioner (rutin för att skapa dessa klar)
 
@@ -13,10 +16,9 @@ Prio 3
 	?? skalbart canvas
 	?? med scrollbar viewport
 	Lägg till komp utan att rita om TL
-	Flera "listen" på wikisida -> Dvorâk
-		
+			
 Prio 4
-	light / dark background
+	light / dark background -> colorjs picker
 	choose main color (default lightblue)
 	scrollbar-tema
 	
@@ -36,36 +38,20 @@ DONE
 	//Add check here, if pos == -1 then there are no clips found
 	Ta in bilder.
 	Hantera nu levande personer...
-
+	Flera "listen" på wikisida -> Dvorâk, CPEB	
+	
 		
 BUGGAR - Timeline of composers
 ==============================
-LISTEN-boxar hittas inte alltid!!! Se Aphex Twin
 Born & died-text hamnar under resp ikon om texten är för lång.
-Kan välja samma år för low & high med high-slidern
 
-
-FIXAD: TL skiftar upp brevid menyn om för kort tidsperiod vald
-FIXAD: Snabba omladdningar (tex. genom att dra sliders) ger komp.dubletter
-
-
-Female composers
-================
-Clara Schumann
-Amy Beach
-Fanny Mendelssohn
-Hildegard of Bingen
-Lili Boulanger
-Cécile Chaminade
-Nadia Boulanger
-Franscesca Caccini
-Ethel Smyth
-Élisabeth Jacquet de La Guerre
-Louise Farrenc
-Isabella Leonarda
-Ruth Crawford Seeger
-Barbara Strozzi
-Elfrida Andrée
-Agathe Backer-Grøndahl
-Germaine Tailleferre
-
+FIXAT
+	Långa datum har fallit bort
+	TL skiftar upp brevid menyn om för kort tidsperiod vald
+	Snabba omladdningar (tex. genom att dra sliders) ger komp.dubletter
+	Klarar inte namn med parantes i. Använd <b>-taggar som ref istället. Ex. Allan_Pettersson|Gustaf (or Gustav) Allan Pettersson
+	Kan välja samma år för low & high med high-slidern
+	LISTEN-boxar hittas inte alltid!!! Se Aphex Twin
+	Flera "listen" på wikisida -> Dvorâk
+	
+	

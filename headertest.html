@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Header-test</title>
+
+<style type='text/css'>
+
+     body { background-color:#666; margin: none; }
+	 form { float:left; margin:10px; }
+	 .outer { text-align:center; overflow:auto;}
+	 .inner { position:relative; display:inline-block; margin:0 auto; overflow:hidden;  }
+	 
+	 svg { float:left; } 
+	 #lowsvg { margin:21px 20px 0px 0px; } 
+	 #highsvg { margin:21px 0px 0px 20px; } 
+	 .text {fill:#666; stroke:lightblue; stroke-width:2;}
+	 
+	 .sliderfield { height:60px; width:300px; }
+	 .slider { width:95%; height:30px; margin:5px; }
+
+	 
+	 #spacer {float:left; min-width:20px; max-width:100px;}
+	 
+	
+
+</style>
+</head>
+<body>
+
+<div class="outer">
+	<div class="inner" id="header">
+		<svg class="image" id="lowsvg" width="124" height="70">
+			<text class="text" id="lowtext" x="0" y="68" font-size="62">1680</text>
+		</svg>  
+		<form>
+			<fieldset class="sliderfield"><legend>Beginning of time</legend>
+				<div class="ui-widget" >
+					<input class="slider"  type='range' id='contollow' name='low' 
+						   min='1000' max='1900' value='' step='1' 
+						   oninput='displayYear(controllow.id, controllow.value, controlhigh.value)' />	
+				</div>
+			</fieldset>
+		</form>
+		<div id="spacer">&nbsp;</div> 
+		<form>
+			<fieldset class="sliderfield"><legend>End of time</legend>
+				<div class="ui-widget" >
+					<input class="slider"  type='range' id='controlhigh' name='high'
+						   min='1200' max='2020' value='' step='1' 
+						   oninput='displayYear(controlhigh.id, controllow.value, controlhigh.value)' />
+				</div>	
+			</fieldset>
+		</form>
+		<svg class="image" id="highsvg" width="124" height="70">
+			<text class="text" id="hightext" x="0" y="68" font-size="62" >2014</text>
+		</svg>  
+	</div> 
+</div> 
+
+
+
+</body></html>
+
+<!--
+
+[image: 120] [form: 150-350] [space min:10 max:100] [form: 150-350] [image: 120]
+
+no linebreak!
+
+-->

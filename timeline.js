@@ -4,6 +4,7 @@ var MARGIN = 3;
 var CURRENTYEAR = new Date().getFullYear();
 var svgNS = "http://www.w3.org/2000/svg";  
 var xlinkNS = "http://www.w3.org/1999/xlink";
+var RIGHTMARGIN = 39; //Avoid horiz scrollbar when vertical scrollbar appears. Chrome:39  Firefox:33
 
 //Global variables
 var cc = {};	//composer cache
@@ -16,7 +17,7 @@ function composer(link, title, dob, dod, name, dobL, dodL, pob, pod, was, extrac
 	this.title = title;
 	this.dob = dob;
 	this.dod = dod;
-	//Disoveded but not used on timeline
+	//Discovered but not used on timeline
 	this.wikitext = wikitext;
 	this.dobL = dobL;
 	this.dodL = dodL;
@@ -84,7 +85,6 @@ function getFileMetaAndURL(file) { //Get real URLs and descriptions for images
 }
 // Get categories on page
 // http://en.wikipedia.org/w/api.php?format=jsonfm&action=parse&prop=categories&page=PAGETITLE
-// http://en.wikipedia.org/w/api.php?format=jsonfm&action=parse&prop=categories&page=Aphex_Twin
 function getCats(link) { // Get categories on article-page
 	return $.getJSON(URL, {
 		action:"parse",
@@ -153,12 +153,17 @@ function infoCol(link){
 		pages = data.query.pages;
 		pageid = Object.getOwnPropertyNames(pages);
 		extract = pages[pageid].extract;
-		fullName = extract.substring(3,extract.indexOf("("));
+		fullName = extract.substring(3,extract.indexOf("</b>"));
+		//fullName = extract.substring(3,extract.indexOf(/\<\/b\>/i));  // For case insensitive: <b> and <B>. Can't get it to work.
 		
-		wasIndex = extract.indexOf("was a ");
-		if (wasIndex == -1) { wasIndex = extract.indexOf("was an "); }
-		if (wasIndex == -1) { wasIndex = extract.indexOf("is a "); }
-		if (wasIndex == -1) { wasIndex = extract.indexOf("is an "); }
+		var indicies = [];
+		wasIndex = extract.indexOf("was a "); if (wasIndex != -1) {indicies.push(wasIndex)};
+		wasIndex = extract.indexOf("was an "); if (wasIndex != -1) {indicies.push(wasIndex)}; 
+		wasIndex = extract.indexOf("is a "); if (wasIndex != -1) {indicies.push(wasIndex)};
+		wasIndex = extract.indexOf("is an "); if (wasIndex != -1) {indicies.push(wasIndex)};
+		sorted = indicies.sort(function(a, b){return a-b});
+		wasIndex = sorted[0];
+		
 		was = extract.substring(wasIndex + 5);
 		firstSentenceEnd = was.indexOf('.')+1;
 		var summaryText = was.substring(firstSentenceEnd);
@@ -171,9 +176,9 @@ function infoCol(link){
 		var stringTemp = extract.substring(pos+4);
 		pos = stringTemp.search(yearPattern);
 		var died = stringTemp.substring(pos, pos+4); 
-		var namelink = '<a href="https://en.wikipedia.org/wiki/' + link + '" target="_blank">' + fullName + '</a>'
-		
-		document.getElementById('infoname').innerHTML = namelink;			
+		var namelink = '<a href="https://en.wikipedia.org/wiki/' + link + '" target="_blank">' + fullName + '</a>';
+		/**	var deletelink = '<span style="color:red;" onclick="deleteComposer(\''+link+'\')">&nbsp;&nbsp;&nbsp;Remove</span>' */
+		document.getElementById('infoname').innerHTML = namelink;//  + deletelink;			
 		document.getElementById('infowas').innerHTML = was;		
 		document.getElementById('summary').innerHTML = summaryText;				
 
@@ -190,18 +195,20 @@ function infoCol(link){
 		var pob = bornAndDied.pob;
 		var dod = bornAndDied.dod;
 		var pod = bornAndDied.pod;
+		var dobL = bornAndDied.dobL;
+		var dodL = bornAndDied.dodL;
 		if (dod == -1) { dod = false; }
 		if (dob != false && pob != false) {
-			document.getElementById('borntext').innerHTML = '&nbsp;' + dob + ' <em>in</em> ' + pob; 
+			document.getElementById('borntext').innerHTML = '&nbsp;' + dobL + ' <em>in</em> ' + pob; 
 		}
 		else if (dob != false) { 
-			document.getElementById('borntext').innerHTML = '&nbsp;' + dob; 
+			document.getElementById('borntext').innerHTML = '&nbsp;' + dobL; 
 		}
 		if (dod != false && pod != false) {
-			document.getElementById('diedtext').innerHTML = '&nbsp;' + dod + ' <em>in</em> ' + pod; 
+			document.getElementById('diedtext').innerHTML = '&nbsp;' + dodL + ' <em>in</em> ' + pod; 
 		}
 		else if (dod != false) { 
-			document.getElementById('diedtext').innerHTML = '&nbsp;' + dod; 
+			document.getElementById('diedtext').innerHTML = '&nbsp;' + dodL; 
 		}
 		else { //Falltrough, there is no information on death, remove infodied-div
 			$('#infodied').empty();
@@ -215,81 +222,110 @@ function infoCol(link){
 
 //Paint audio column in infobox
 function audioCol(link){
+	function failImage() {	// load no music-image
+		var img = document.createElement('img');
+		img.id = 'nomusic';
+		img.src = 'nomusic.png';
+		img.width = '320';
+		document.getElementById('musicdiv').appendChild(document.createElement('br'));
+		document.getElementById('musicdiv').appendChild(document.createElement('br'));
+		document.getElementById('musicdiv').appendChild(img);
+	}
+
 	getPage(link).done(function(data) { //Get details on born & died, get audiofiles ASYNC
 		pages = data.query.pages;
 		pageid = Object.getOwnPropertyNames(pages);
     	rv = pages[pageid].revisions[0];
 		content = rv["*"];
 
-		var pos = content.search(/\{\{listen/i); //Add check here, if pos == -1 then there are no clips found
-
-		if (pos == -1) {
-			// load no music-image
-			var img = document.createElement('img');
-			img.id = 'nomusic';
-			img.src = 'nomusic.png';
-			img.width = '320';
-			document.getElementById('musicdiv').appendChild(document.createElement('br'));
-			document.getElementById('musicdiv').appendChild(document.createElement('br'));
-			document.getElementById('musicdiv').appendChild(img);
-		}
+		var search = '{{listen';
+		listenP = getIndicesOf(search, content, false);
+		var search = '{{multi-listen item';
+		multilistenP = getIndicesOf(search, content, false);
+		
+		
+		if (listenP.length == 0 && multilistenP.length == 0) { failImage(); }
 		else {
-			var stringTemp = content.substring(pos+8);
-			pos = stringTemp.search("}}");
-			var listen = stringTemp.substring(0,pos);
-			
-			listen = listen.replace(/\[[\w\séÉ]*\|/g, '');
-			//listen = listen.replace(/\[.*\|/g, '');
-			listen = listen.replace(/\[/g, '');
-			listen = listen.replace(/\]/g, '');
-			var L = listen.split("|");
-			
 			var clipFile = []
 			var clipDesc = []
 			var clipTitle = []
-			for (s in L) {
-				if (/filename/i.test(L[s])) {
-					pos = L[s].search("=");
-					L[s] = L[s].substring(pos+1).trim();
-					clipFile.push(L[s]);
+		}
+		if (listenP.length != 0){
+			for (pos in listenP){
+				var stringTemp = content.substring(listenP[pos]+8);
+				end = stringTemp.search("}}");
+				var listen = stringTemp.substring(0,end);
+				listen = listen.replace(/\[[\w\séÉ]*\|/g, '');
+				//listen = listen.replace(/\[.*\|/g, '');
+				listen = listen.replace(/\[/g, '');
+				listen = listen.replace(/\]/g, '');
+				var L = listen.split("|");			
+				for (s in L) {
+					if (/filename/i.test(L[s])) {
+						pos = L[s].search("=");
+						L[s] = L[s].substring(pos+1).trim();
+						clipFile.push(L[s]);
+					}
+					if (/description/i.test(L[s])) {
+						pos = L[s].search("=");
+						L[s] = L[s].substring(pos+1).trim();
+						clipDesc.push(L[s]);
+					}
+					if (/title/i.test(L[s])) {
+						pos = L[s].search("=");
+						L[s] = L[s].substring(pos+1).trim();
+						clipTitle.push(L[s]);
+					}	
 				}
-				if (/description/i.test(L[s])) {
-					pos = L[s].search("=");
-					L[s] = L[s].substring(pos+1).trim();
-					clipDesc.push(L[s]);
-				}
-				if (/title/i.test(L[s])) {
-					pos = L[s].search("=");
-					L[s] = L[s].substring(pos+1).trim();
-					clipTitle.push(L[s]);
-				}	
 			}
+		}
+		if (multilistenP.length != 0){
+			for (pos in multilistenP){
+				var stringTemp = content.substring(multilistenP[pos]+19);
+				//console.log(liste
+				end = stringTemp.search("}}");
+				var listen = stringTemp.substring(0,end);
+				listen = listen.replace(/\[[\w\séÉ]*\|/g, '');
+				//listen = listen.replace(/\[.*\|/g, '');
+				listen = listen.replace(/\[/g, '');
+				listen = listen.replace(/\]/g, '');
+				var L = listen.split("|");			
+				for (s in L) {
+					if (/filename/i.test(L[s])) {
+						pos = L[s].search("=");
+						L[s] = L[s].substring(pos+1).trim();
+						clipFile.push(L[s]);
+					}
+					if (/description/i.test(L[s])) {
+						pos = L[s].search("=");
+						L[s] = L[s].substring(pos+1).trim();
+						clipDesc.push(L[s]);
+					}
+					if (/title/i.test(L[s])) {
+						pos = L[s].search("=");
+						L[s] = L[s].substring(pos+1).trim();
+						clipTitle.push(L[s]);
+					}	
+				}
+			}
+		}
+		if (clipFile != undefined){
 			// Build list of files to get URLs for
+			var fileCount = 0;
 			var fileList = ""
 			for (f in clipFile) {
 				fileList = fileList + "File:" + clipFile[f] + "|"
+				fileCount++;
 			}
 			fileList = fileList.slice(0,-1);
 			
-			clipFileURL = []
+			var clipFileURL = []
 			getFileURL(fileList).done(function(data) {
-				x = -1
-				for (i in clipFile) {
-					//console.log(data);
-					if (data.query.pages[x] == undefined) {
-						//console.log(Object.getOwnPropertyNames(pages));
-						//console.log(Object.keys(pages));
-						//var testid= Object.getOwnPropertyNames(pages);
-						//clipFileURL.push(uData.query.pages[testid].imageinfo[0].url); 
-						clipFileURL.push(data.query.pages[19547758].imageinfo[0].url); //Special för Hildegard av Bingen
-						clipFileURL.push(data.query.pages[9263525].imageinfo[0].url); //Special för Aphex Twin
-						
-					}
-					else {
-						clipFileURL.push(data.query.pages[x].imageinfo[0].url);
-					}
-					x--;
-				}		
+				pages = data.query.pages;
+				for (prop in pages) {		
+					if (!pages.hasOwnProperty(prop)) { continue;}
+					clipFileURL.push(pages[prop].imageinfo[0].url);
+				}
 				for (i in clipFileURL) {
 					var clip = document.createElement('div');
 					document.getElementById('musicdiv').appendChild(clip);
@@ -324,14 +360,12 @@ function audioCol(link){
 						//desc.style = 'width:100%; height:100%; ';
 						desc.innerHTML = '&nbsp;<em>'+clipDesc[i]+'</em>';
 					clip.appendChild(desc);
-
-					
 				}
 			});
-		}
+		}	
 	});
 }
-		
+	
 //Paint image column in infobox
 function imageCol(link){
 	getImages(link).done(function(data) { 
@@ -413,7 +447,7 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 		
 		var bornI = parseInt(dob); var diedI = parseInt(dod); 				
 		var translatePx = ((bornI - low)*expandFactor + MARGIN);
-		var tlWidth = (high-low)*expandFactor -25;
+		var tlWidth = (high-low)*expandFactor - RIGHTMARGIN;
 		
 		var box = document.createElementNS(svgNS, 'svg');
 		box.setAttributeNS(null, 'id', link);
@@ -432,7 +466,7 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 				if (living) { 
 					var shape = document.createElementNS(svgNS, 'rect');
 					shape.setAttributeNS(null, 'x', translatePx); 
-					shape.setAttributeNS(null, 'y', '1');
+					shape.setAttributeNS(null, 'y', '0');
 					shape.setAttributeNS(null, 'height', '50');
 					shape.setAttributeNS(null, 'width', w+25); //hides rounding on right side
 					shape.setAttributeNS(null, 'rx', '25');
@@ -441,7 +475,7 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 				else { // for not living persons
 					var shape = document.createElementNS(svgNS, 'rect');
 					shape.setAttributeNS(null, 'x', translatePx); 
-					shape.setAttributeNS(null, 'y', '1');
+					shape.setAttributeNS(null, 'y', '0');
 					shape.setAttributeNS(null, 'rx', '25');
 					shape.setAttributeNS(null, 'ry', '25'); 
 					shape.setAttributeNS(null, 'height', '50');
@@ -464,7 +498,7 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 				name.setAttributeNS(null, 'font-family','Segoe UI');
 				name.setAttributeNS(null, 'fill', 'black');
 				name.setAttributeNS(null, 'x', translatePx+13);
-				name.setAttributeNS(null, 'y', '23');
+				name.setAttributeNS(null, 'y', '22');
 				name.innerHTML = title;
 				// Handle names that don't fit
 				var nameTooLong = false;
@@ -492,7 +526,7 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 				years.setAttributeNS(null, 'fill', 'black');
 				name.setAttributeNS(null, 'font-family','Segoe UI Light');
 				years.setAttributeNS(null, 'x', translatePx+20);
-				years.setAttributeNS(null, 'y', '41');
+				years.setAttributeNS(null, 'y', '40');
 				if (living) {
 					years.innerHTML = 'Born ' + dob;
 				}
@@ -502,7 +536,6 @@ function paintComposerBox(link, title, dob, dod, low, high, expandFactor){
 		
 		box.appendChild(linkedRect);
 		container.appendChild(box);
-		container.appendChild(document.createElement('br'));
 	}
 }
 
@@ -520,11 +553,11 @@ function timeAxis(low, high, expandFactor){
 					new period('Romantic', 1820, 1900, 'red'),	new period('Modern', 1900, 1930, 'pink'),
 					new period('Contemporary', 1975, CURRENTYEAR, 'khaki')];
 	
-	tlWidth = (high-low)*expandFactor -25;
+	tlWidth = (high-low)*expandFactor - RIGHTMARGIN;
 	var tl = document.createElementNS(svgNS, 'svg');
-	tl.setAttributeNS(null, 'height', '72');
-	tl.setAttributeNS(null, 'width', (tlWidth+MARGIN*2).toString());
-	document.getElementById('container').style = 'width:' + (tlWidth+0) + 'px;';
+	tl.setAttributeNS(null, 'height', '25');
+	tl.setAttributeNS(null, 'width', tlWidth+MARGIN*2);
+	document.getElementById('container').style = 'width:' + tlWidth + 'px;';
 	
 	for (i in periods){
 			var pp = document.createElementNS(svgNS, 'rect');// pp: Paint Period
@@ -534,20 +567,21 @@ function timeAxis(low, high, expandFactor){
 			pp.setAttributeNS(null, 'style', 'fill:'+periods[i].color+';stroke:black;stroke-width:0;opacity:1.0');
 			pp.setAttributeNS(null, 'id', 'period' + [i]);
 			pp.setAttributeNS(null, 'x', translatePx + MARGIN); 
-			pp.setAttributeNS(null, 'y', '28');
+			//pp.setAttributeNS(null, 'y', '28');
+			pp.setAttributeNS(null, 'y', '5');
 			pp.setAttributeNS(null, 'width', w);
 		tl.appendChild(pp);
 			var ppT = document.createElementNS(svgNS, 'text');
 			ppT.setAttributeNS(null, 'class', 'legend');
 			ppT.setAttributeNS(null, 'font-size', '14'); 
 			ppT.setAttributeNS(null, 'fill', 'black');
-			ppT.setAttributeNS(null, 'y', '42');
+			ppT.setAttributeNS(null, 'y', '18');
 			if (periods[i].start < low){
-				ppT.setAttributeNS(null, 'x', MARGIN + 10);
-				ppT.innerHTML = '<< ' + periods[i].name;
+				ppT.setAttributeNS(null, 'x',  + MARGIN);
+				ppT.innerHTML = '&#8666; ' + periods[i].name;
 			}
 			else {
-				ppT.setAttributeNS(null, 'x', translatePx + 10);
+				ppT.setAttributeNS(null, 'x', translatePx + 17);
 				ppT.innerHTML = periods[i].name;
 			}
 		tl.appendChild(ppT);
@@ -555,48 +589,13 @@ function timeAxis(low, high, expandFactor){
 		var line = document.createElementNS(svgNS, 'line');
 		line.setAttributeNS(null, 'id', 'line');
 		line.setAttributeNS(null, 'x1', 0);
-		line.setAttributeNS(null, 'y1', '25');
+		line.setAttributeNS(null, 'y1', '3');
 		line.setAttributeNS(null, 'x2', tlWidth + MARGIN*2);
-		line.setAttributeNS(null, 'y2', '25');
+		line.setAttributeNS(null, 'y2', '3');
 		line.setAttributeNS(null, 'style', 'stroke:white;stroke-width:5');
 	tl.appendChild(line);
-	/*
-		var beL = document.createElementNS(svgNS, 'line');
-		beL.setAttributeNS(null, 'id', 'bookendL');
-		beL.setAttributeNS(null, 'x1', MARGIN -1);
-		beL.setAttributeNS(null, 'y1', '5');
-		beL.setAttributeNS(null, 'x2', MARGIN -1);
-		beL.setAttributeNS(null, 'y2', '45');
-		beL.setAttributeNS(null, 'style', 'stroke:black;stroke-width:5');
-	tl.appendChild(beL);
-		var beR = document.createElementNS(svgNS, 'line');
-		beR.setAttributeNS(null, 'id', 'bookendR');
-		beR.setAttributeNS(null, 'x1', tlWidth + MARGIN +1);
-		beR.setAttributeNS(null, 'y1', '5');
-		beR.setAttributeNS(null, 'x2', tlWidth + MARGIN +1);
-		beR.setAttributeNS(null, 'y2', '45');
-		beR.setAttributeNS(null, 'style', 'stroke:black;stroke-width:5');
-	tl.appendChild(beR);
-	*/
-		var yearL = document.createElementNS(svgNS, 'text');
-		yearL.setAttributeNS(null, 'class', 'legend');
-		yearL.setAttributeNS(null, 'font-size', '20'); 
-		yearL.setAttributeNS(null, 'fill', 'black');
-		yearL.setAttributeNS(null, 'x', MARGIN + 3);
-		yearL.setAttributeNS(null, 'y', '20');
-		yearL.innerHTML = low.toString();
-	tl.appendChild(yearL);
-		var yearR = document.createElementNS(svgNS, 'text');
-		yearR.setAttributeNS(null, 'class', 'legend');
-		yearR.setAttributeNS(null, 'font-size', '20');
-		yearR.setAttributeNS(null, 'fill', 'black');
-		yearR.setAttributeNS(null, 'x', tlWidth + MARGIN - 60);
-		yearR.setAttributeNS(null, 'y', '20');
-		yearR.innerHTML = high.toString();
-	tl.appendChild(yearR);
-		
+
 	container.appendChild(tl);
-	container.appendChild(document.createElement('br'));
 }
 
 //Read GET, return variables
@@ -622,6 +621,33 @@ function getQueryVariable(variable) {
   } 
   return(false);
 }
+
+//Delete composer from timeline
+function deleteComposer(link) {
+	console.log(link);
+	//var pos = composers.indexOf(link);
+	//console.log(pos);
+	//console.log(composers);
+}	
+
+//	Get all indices of string in string. Code by Tim Down @ SO.
+function getIndicesOf(searchStr, str, caseSensitive) {
+    var startIndex = 0, searchStrLen = searchStr.length;
+    var index, indices = [];
+    if (!caseSensitive) {
+        str = str.toLowerCase();
+        searchStr = searchStr.toLowerCase();
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+        indices.push(index);
+        startIndex = index + searchStrLen;
+    }
+    return indices;
+}
+
+
+
+
 
 
 		

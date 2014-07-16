@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="http://malihu.github.io/custom-scrollbar/jquery.mCustomScrollbar.min.css" />
+<script src="http://malihu.github.io/custom-scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+<script src="jscolor/jscolor.js"></script>
+<script src="xinspect.js"></script>
+<script src="timeline.js"></script>
+<style type='text/css'>
+     body { background-color:lightblue; margin: 5px; }
+	 div {  background-color:#AAA; float:left }
+	 .contentdiv { height:400px; width:323px; overflow-y:auto; overflow-x:hidden; padding:5px;}
+	 .infodiv { width:300px; padding:5px; margin-right:5px; }
+	  #summary {text-align:justify; padding-top:0px}
+	  .clip {width:290px; padding:5px; margin-top:5px; margin-bottom:5px; border:3px outset lightblue; border-radius:15px }
+	  img { vertical-align:text-bottom }
+</style>
+</head>
+<body>
+<div id='infoblock' style='width:1000px; height:400px; padding-right: 0px; ' > 
+	<div class="contentdiv" id="infodiv" style=" ">
+		<div class="infodiv" id='infoname'></div>
+		<div class="infodiv" id='infowas' style="background-color:lightyellow;"></div>
+		<div class="infodiv" id='infoborn'>
+				<div id="bornimg" style="width:20">
+					<img src="birth-symbol.png" width="20" height="20"  />
+				</div>
+				<div id="borntext" style="width:280"></div>
+		</div>
+		<div class="infodiv" id='infodied'>
+				<div id="diedimg" style="width:20">
+					<img src="death_tombstone2.png" width="20" height="20" />
+				</div>
+				<div id="diedtext" style="width:280"></div>
+		</div>
+		<div class="infodiv" id='summary' style="font-size:85% "></div>
+	</div>
+	<div class="contentdiv" id="imgdiv" style=""></div>
+	<div class="contentdiv" id="musicdiv" style=""></div>
+</div>
+
+<script>
+	function fillTable(link){	
+		infoCol(link);
+		audioCol(link);
+		imageCol(link);
+	}			
+
+	// Main
+	var composer = getQueryVariable("composer");
+	if (composer == false) { // If no composer set up placeholder
+		maindiv = document.getElementById('infoblock');
+		maindiv.style = "padding:5px; width:990px; height:400px"
+		maindiv.innerHTML = '<img src="placeholder_title.png" height="380" width="800" style="position:relative; left:95px; top:10px;" />';
+	}
+	else {
+		fillTable(composer);
+	}	
+</script>
+
+</body></html>
+

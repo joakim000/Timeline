@@ -1,0 +1,47 @@
+
+https://en.wikipedia.org/wiki/Carl_Philipp_Emanuel_Bach
+
+==Media==
+{{multi-listen start}}
+
+{{multi-listen item
+|filename		= Carl Philipp Emanuel Bach - Sonata in Bb major.ogg
+|title			= Flute Sonata in B flat major
+|description	= Performed by Alex Murray (flute) and [[Martha Goldstein]] (harpsichord)
+|format			= [[Ogg]]}}
+
+{{multi-listen item|filename=Carl Philipp Emanuel Bach - Sonata in G major.ogg|title=Flute Sonata in G major|description=Performed by Alex Murray (flute) and Martha Goldstein (harpsichord)|format=[[Ogg]]}}
+{{multi-listen item|filename=Carl Phillipe Emanuel Bach - Freie Fantasie, F Sharp minor.ogg|title=Freie Fantasie, F sharp minor|description=Performed by Joan Benson (clavichord)|format=[[Ogg]]}}
+{{multi-listen item|filename=Carl Philipp Emanuel Bach- Flute Concerto Gmaj - 1. Allegro.ogg|title=Flute Concerto in G major – 1. Allegro|description=Performed by the Advent Chamber Orchestra with Constance Schoepflin (flute)|format=[[ogg]]}}
+{{multi-listen item|filename=Carl Philipp Emanuel Bach- Flute Concerto Gmaj - 2. Largo.ogg|title=Flute Concerto in G major – 2. Largo|description=Performed by the Advent Chamber Orchestra with Constance Schoepflin (flute)|format=[[ogg]]}}
+{{multi-listen item|filename=Carl Philipp Emanuel Bach- Flute Concerto Gmaj - 3. Presto.ogg|title=Flute Concerto in G major – 3. Presto|description=Performed by the Advent Chamber Orchestra with Constance Schoepflin (flute)|format=[[ogg]]}}
+{{multi-listen item|filename=CPE Bach193.11.ogg|title=Piece for Mechanical Clock, H. 635, No. 11|description=Performed on an organ by Ulrich Metzner|format=[[ogg]]}}
+{{multi-listen item|filename=Wiki_naxos_8.557450_01_01.ogg|title=Keyboard Sonata in D minor, Wq. 51/4, H.128 – I. Allegro assai|description=Performed by Christopher 
+Hinterhuber (piano)
+
+<br/>
+
+{{YouTube|TqkqdsFQG00|Carl Philipp Emanuel Bach Hamburger Sonata for flute and piano Wq. 133 <br/> Enrico Sartori Flute, Giuseppe Santucci Piano}}
+<br/>Courtesy of [[Naxos Records|NAXOS]]|format=[[Ogg]]}}
+
+{{listen 
+ | filename    = Carl_Philipp_Emanuel_Bach_-_Solfeggietto.ogg
+ | title       = Solfeggietto
+ | description = 
+ | format      = [[OGG]]
+}}
+
+{{listen
+| filename     = Bach - Flute Sonata Gmin - 1. Allegro.ogg
+| title        = Sonata for Flute or Recorder and Harpsichord in G minor, H 542.5 (BWV 1020) – 1. Allegro
+| description  =
+| filename2    = Bach - Flute Sonata Gmin - 2. Adagio.ogg
+| title2       = Sonata, H 542.5 – 2. Adagio
+| description2 =
+| filename3    = Bach - Flute Sonata Gmin - 3. Allegro.ogg
+| title3       = Sonata, H 542.5 – 3. Allegro
+| description3 = All performed by Alex Murray (traverso) and Martha Goldstein (harpsichord)
+}}
+
+{{audio|LaCarolineGalKoren.mid|MIDI of La Caroline by Gal koren}}
+{{multi-listen end}}
